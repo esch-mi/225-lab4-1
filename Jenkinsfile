@@ -29,6 +29,12 @@ pipeline {
                 sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${DOCKER_IMAGE}:${IMAGE_TAG}"
             }
         }
+        stage('Python Dependency Check - Safety') {
+            steps {
+                sh "pip install safety"
+                sh "safety check -r requirements.txt"
+            }
+        }
         stage('Push Docker Image') {
             steps {
                 script {
