@@ -1,6 +1,5 @@
 pipeline {
     agent any 
-
     environment {
         DOCKER_CREDENTIALS_ID = 'roseaw-dockerhub'  
         DOCKER_IMAGE = 'cithit/eschenea'                                   //<-----change this to your MiamiID!
@@ -8,7 +7,6 @@ pipeline {
         GITHUB_URL = 'https://github.com/esch-mi/225-lab4-1.git'     //<-----change this to match this new repository!
         KUBECONFIG = credentials('Eschenea-225-sp26')                           //<-----change this to match your kubernetes credentials (MiamiID-225)! 
     }
-
     stages {
         stage('Checkout') {
             steps {
@@ -17,7 +15,6 @@ pipeline {
                           userRemoteConfigs: [[url: "${GITHUB_URL}"]]])
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 script {
@@ -27,7 +24,11 @@ pipeline {
             }
         }
         }
-
+        stage('Security Scan - Trivy') {
+            steps {
+                sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${DOCKER_IMAGE}:${IMAGE_TAG}"
+            }
+        }
         stage('Push Docker Image') {
             steps {
                 script {
@@ -37,7 +38,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to Dev Environment') {
             steps {
                 script {
@@ -58,9 +58,7 @@ pipeline {
             }
         }
     }
-
     post {
-
         success {
             slackSend color: "good", message: "Build Completed: ${env.JOB_NAME} ${env.BUILD_NUMBER}"
         }
