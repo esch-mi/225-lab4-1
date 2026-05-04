@@ -31,8 +31,8 @@ pipeline {
         }
         stage('Python Dependency Check - Safety') {
             steps {
-                sh "pip3 install safety"                                //added safety to check the requirements.txt. Since we are using flask it will check flask against safetys database for vulnerabilites. If issues come up the pipeline will fail.
-                sh "safety check -r requirements.txt"
+                sh "python3 -m pip install safety"                                //added safety to check the requirements.txt. Since we are using flask it will check flask against safetys database for vulnerabilites. If issues come up the pipeline will fail.
+                sh "python3 -m safety check -r requirements.txt"
             }
         }
         stage('Push Docker Image') {
