@@ -24,7 +24,7 @@ pipeline {
             }
         }
         }
-        stage('Security Scan - Trivy') {
+        stage('Security Scan - Trivy') {                                        // Added trivy. This scans the docker image for potential vulnerabilites and compares it trivys database. Causes the pipeline to fail if the image is considered risky
             steps {
                 sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${DOCKER_IMAGE}:${IMAGE_TAG}"
             }
