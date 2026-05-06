@@ -59,6 +59,12 @@ pipeline {
                 }
             }
         }
+        stage('Acceptance Testing - Selenium') {
+            steps {
+                sh "python3 -m pip install selenium"
+                sh "python3 -m pytest selenium_tests.py -v"
+            }
+        }
         stage('Check Kubernetes Cluster') {
             steps {
                 script {
