@@ -18,10 +18,10 @@ def init_db():
     with app.app_context():
         db = get_db()
         db.execute('''
-            CREATE TABLE IF NOT EXISTS contacts (
+            CREATE TABLE IF NOT EXISTS cars (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                phone TEXT NOT NULL
+                make TEXT NOT NULL,
+                model TEXT NOT NULL
             );
         ''')
         db.commit()
@@ -40,27 +40,27 @@ def index():
 
         # Check if it's a delete action
         if request.form.get('action') == 'delete':
-            contact_id = request.form.get('contact_id')
-            if contact_id:
+            car_id = request.form.get('car_id')
+            if car_id:
                 db = get_db()
-                db.execute('DELETE FROM contacts WHERE id = ?', (contact_id,))
+                db.execute('DELETE FROM cars WHERE id = ?', (car_id,))
                 db.commit()
-                message = 'Contact deleted successfully.'
+                message = 'Car deleted successfully.'
             else:
-                message = 'Missing contact id.'
+                message = 'Missing car id.'
             # Redirect to avoid form resubmission on refresh
             return redirect(url_for('index', message=message))
 
         # Otherwise, it's an add action
-        name = request.form.get('name')
-        phone = request.form.get('phone')
-        if name and phone:
+        make = request.form.get('make')
+        model = request.form.get('model')
+        if make and model:
             db = get_db()
-            db.execute('INSERT INTO contacts (name, phone) VALUES (?, ?)', (name, phone))
+            db.execute('INSERT INTO cars (make, model) VALUES (?, ?)', (make, model))
             db.commit()
-            message = 'Contact added successfully.'
+            message = 'Car added successfully.'
         else:
-            message = 'Missing name or phone number.'
+            message = 'Missing make or model.'
 
         # Redirect to GET (prevents resubmission on refresh)
         return redirect(url_for('index', message=message))
@@ -68,24 +68,24 @@ def index():
     # GET request: read optional message from query string
     message = request.args.get('message', '')
 
-    # Always display the contacts table
+    # Always display the cars table
     db = get_db()
-    contacts = db.execute('SELECT * FROM contacts').fetchall()
+    cars = db.execute('SELECT * FROM cars').fetchall()
 
     # Render page
     return render_template_string('''
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Contacts</title>
+            <title>Cars</title>
         </head>
         <body>
-            <h2>Add Contact</h2>
+            <h2>Add Car</h2>
             <form method="POST" action="{{ url_for('index') }}">
-                <label for="name">Name:</label><br>
-                <input type="text" id="name" name="name" required><br>
-                <label for="phone">Phone Number:</label><br>
-                <input type="text" id="phone" name="phone" required><br><br>
+                <label for="make">Make:</label><br>
+                <input type="text" id="make" name="make" required><br>
+                <label for="model">Model:</label><br>
+                <input type="text" id="model" name="model" required><br><br>
                 <input type="submit" value="Submit">
             </form>
 
@@ -93,20 +93,20 @@ def index():
               <p>{{ message }}</p>
             {% endif %}
 
-            {% if contacts %}
+            {% if cars %}
                 <table border="1" cellpadding="6" cellspacing="0">
                     <tr>
-                        <th>Name</th>
-                        <th>Phone Number</th>
+                        <th>Make</th>
+                        <th>Model</th>
                         <th>Delete</th>
                     </tr>
-                    {% for contact in contacts %}
+                    {% for car in cars %}
                         <tr>
-                            <td>{{ contact['name'] }}</td>
-                            <td>{{ contact['phone'] }}</td>
+                            <td>{{ car['make'] }}</td>
+                            <td>{{ car['model'] }}</td>
                             <td>
                                 <form method="POST" action="{{ url_for('index') }}">
-                                    <input type="hidden" name="contact_id" value="{{ contact['id'] }}">
+                                    <input type="hidden" name="car_id" value="{{ car['id'] }}">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="submit" value="Delete">
                                 </form>
@@ -115,11 +115,11 @@ def index():
                     {% endfor %}
                 </table>
             {% else %}
-                <p>No contacts found.</p>
+                <p>No cars found.</p>
             {% endif %}
         </body>
         </html>
-    ''', message=message, contacts=contacts)
+    ''', message=message, cars=cars)
 
 
 if __name__ == "__main__":
