@@ -122,7 +122,7 @@ def index():
     ''', message=message, contacts=contacts)
 
 
-if __name__ == "__main__":                                # changed debug=true to false this removes the browser debugger which could be used by an attacker
+if __name__ == "__main__":                               
     port = int(os.environ.get("PORT", 5000))
     init_db()  # Initialize the database and table
     app.run(debug=False, host='0.0.0.0', port=port)
