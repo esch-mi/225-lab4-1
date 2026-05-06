@@ -24,15 +24,21 @@ pipeline {
             }
         }
         }
-        stage('Security Scan - Trivy') {                                        // Added trivy. This scans the docker image for potential vulnerabilites and compares it trivys database. Causes the pipeline to fail if the image is considered risky
+        stage('Security Scan - Trivy') {
             steps {
                 sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${DOCKER_IMAGE}:${IMAGE_TAG}"
             }
         }
         stage('Python Dependency Check - Safety') {
             steps {
-                sh "python3 -m pip install safety"                                //added safety to check the requirements.txt. Since we are using flask it will check flask against safetys database for vulnerabilites. If issues come up the pipeline will fail.
+                sh "python3 -m pip install safety"
                 sh "python3 -m safety check -r requirements.txt"
+            }
+        }
+        stage('Static Code Analysis - Flake8') {
+            steps {
+                sh "pip install flake8"
+                sh "flake8 main.py --max-line-length=120"
             }
         }
         stage('Push Docker Image') {
@@ -47,9 +53,7 @@ pipeline {
         stage('Deploy to Dev Environment') {
             steps {
                 script {
-                    // This sets up the Kubernetes configuration using the specified KUBECONFIG
                     def kubeConfig = readFile(KUBECONFIG)
-                    // This updates the deployment-dev.yaml to use the new image tag
                     sh "sed -i 's|${DOCKER_IMAGE}:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment-dev.yaml"
                     sh "kubectl apply -f deployment-dev.yaml"
                 }
