@@ -37,7 +37,7 @@ pipeline {
         }
         stage('Static Code Analysis - Flake8') {
             steps {
-                sh "pip install flake8"
+                sh "pip3 install flake8"
                 sh "flake8 main.py --max-line-length=120"
             }
         }
