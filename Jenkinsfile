@@ -59,11 +59,24 @@ pipeline {
                 }
             }
         }
-        
         stage('Check Kubernetes Cluster') {
             steps {
                 script {
                     sh "kubectl get all"
+                }
+            }
+        }
+        stage('Approval for Production') {
+            steps {
+                input message: 'Deploy to Production?', ok: 'Yes, deploy to prod'
+            }
+        }
+        stage('Deploy to Prod Environment') {
+            steps {
+                script {
+                    def kubeConfig = readFile(KUBECONFIG)
+                    sh "sed -i 's|${DOCKER_IMAGE}:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment-prod.yaml"
+                    sh "kubectl apply -f deployment-prod.yaml"
                 }
             }
         }
