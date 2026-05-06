@@ -7,10 +7,12 @@ app = Flask(__name__)
 # Database file path
 DATABASE = '/nfs/demo.db'
 
+
 def get_db():
     db = sqlite3.connect(DATABASE)
     db.row_factory = sqlite3.Row  # name-based access to columns
     return db
+
 
 def init_db():
     with app.app_context():
@@ -23,6 +25,7 @@ def init_db():
             );
         ''')
         db.commit()
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -117,6 +120,7 @@ def index():
         </body>
         </html>
     ''', message=message, contacts=contacts)
+
 
 if __name__ == "__main__":                                # changed debug=true to false this removes the browser debugger which could be used by an attacker
     port = int(os.environ.get("PORT", 5000))
