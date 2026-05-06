@@ -80,6 +80,15 @@ pipeline {
                 }
             }
         }
+        stage('Check Kubernetes Cluster - Prod') {
+            steps {
+                script {
+                    sh "kubectl get pods"
+                    sh "kubectl get services"
+                    sh "kubectl get deploy"
+                }
+            }
+        }
     }
     post {
         success {
