@@ -65,6 +65,17 @@ pipeline {
                 sh "python3 -m pytest selenium_tests.py -v"
             }
         }
+        stage('Run Security Checks - Dastardly') {
+            steps {
+                sh 'docker pull public.ecr.aws/portswigger/dastardly:latest'
+                sh '''
+                    docker run --user $(id -u) -v ${WORKSPACE}:${WORKSPACE}:rw \
+                    -e BURP_START_URL=http://10.48.228.102 \
+                    -e BURP_REPORT_FILE_PATH=${WORKSPACE}/dastardly-report.xml \
+                    public.ecr.aws/portswigger/dastardly:latest
+                '''
+            }
+        }
         stage('Check Kubernetes Cluster') {
             steps {
                 script {
@@ -97,6 +108,9 @@ pipeline {
         }
     }
     post {
+        always {
+            junit testResults: 'dastardly-report.xml', skipPublishingChecks: true
+        }
         success {
             slackSend color: "good", message: "Build Completed: ${env.JOB_NAME} ${env.BUILD_NUMBER}"
         }
