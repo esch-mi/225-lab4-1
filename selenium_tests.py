@@ -4,7 +4,7 @@ from selenium.webdriver.firefox.options import Options
 import unittest
 
 
-class TestContactsApp(unittest.TestCase):
+class TestCarsApp(unittest.TestCase):
     def setUp(self):
         firefox_options = Options()
         firefox_options.add_argument("--headless")
@@ -16,15 +16,15 @@ class TestContactsApp(unittest.TestCase):
         driver = self.driver
         driver.get("http://10.48.228.102")
         h2_text = driver.find_element(By.TAG_NAME, "h2").text
-        self.assertEqual("Add Contact", h2_text, "The <h2> tag does not contain 'Add Contact'")
+        self.assertEqual("Add Car", h2_text, "The <h2> tag does not contain 'Add Car'")
 
-    def test_add_contact(self):
+    def test_add_car(self):
         driver = self.driver
         driver.get("http://10.48.228.102")
-        driver.find_element(By.ID, "name").send_keys("Test User")
-        driver.find_element(By.ID, "phone").send_keys("555-1234")
+        driver.find_element(By.ID, "make").send_keys("Toyota")
+        driver.find_element(By.ID, "model").send_keys("Camry")
         driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
-        self.assertIn("Contact added successfully.", driver.page_source)
+        self.assertIn("Car added successfully.", driver.page_source)
 
     def tearDown(self):
         self.driver.quit()
